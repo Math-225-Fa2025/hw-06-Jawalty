@@ -1,10 +1,11 @@
 ---
 title: "HW 06 - Money in US politics"
+author: "Jackson Walterman"
 output: 
-  tufte::tufte_html:
-    css: ../hw.css
-    tufte_variant: "envisioned"
-    highlight: pygments
+ # tufte::tufte_html:
+   # css: ../hw.css
+   # tufte_variant: "envisioned"
+   # highlight: pygments
   tufte::tufte_handout:
     latex_engine: xelatex
     highlight: pygments
@@ -115,7 +116,79 @@ This file already contains some starter code to help you out.
 -   Map the `scrape_pac()` function over `urls` in a way that will result in a data frame called `pac_all`.
 
 -   Write the data frame to a csv file called `pac-all.csv` in the `data` folder.
+``` {scrape function}
+# function: scrape_pac ---------------------------------------------------------
 
+scrape_pac <- function(url) {
+  
+  # read the page
+  page <- _readu_html__(__url_)
+  
+  # extract the table
+  pac <-  page %>%
+   # select node .DataTable (identified using the SelectorGadget)
+    html_node(".DataTable-Partial") %>%
+    # parse table at node td into a data frame
+    #   table has a head and empty cells should be filled with NAs
+    html_table("td", header = _TRUE__, fill = _TRUE__) %>%
+    # convert to a tibble
+    as_tibble()
+  
+  # rename variables
+  pac <- pac %>%
+    # rename columns
+    rename(
+      name = _PAC Name `(Affiliate)`__ ,
+      country_parent = _Country of Origin/Parent Company__,
+      total = _Total__,
+      dems = _Dems__,
+      repubs = _Repubs__
+    )
+  
+  # fix name
+  pac <- pac %>%
+    # remove extraneous whitespaces from the name column
+    mutate(name = _str_squish(name)__)
+  
+  # add year
+  pac <- pac %>%    # extract last 4 characters of the URL and save as year
+    mutate(year = _sttr_sub(url, -4)__)
+  
+  # return data frame
+  pac
+  
+}
+
+# test function ----------------------------------------------------------------
+
+url_2022 <- "_https://www.opensecrets.org__"
+pac_2022 <- scrape_pac(_url_2022__)
+
+url_2020 <- "_https://www.opensecrets.org__"
+pac_2020 <- scrape_pac(_url_2020__)
+
+url_2000 <- "__https://www.opensecrets.org_"
+pac_2000 <- scrape_pac(_url_2000__)
+
+# list of urls -----------------------------------------------------------------
+
+# first part of url
+root <- "https://www.opensecrets.org/political-action-committees-pacs/foreign-connected-pacs/"
+
+# second part of url (election years as a sequence)
+year <- seq(from = _2000__, to = _2020__, by = _2022__)
+
+# construct urls by pasting first and second parts together
+urls <- paste0(_root__, _year__)
+
+# map the scrape_pac function over list of urls --------------------------------
+
+pac_all <- _map__(_urls__, _scrape_pac__)
+
+# write data -------------------------------------------------------------------
+
+write_csv(_pac_all__, file = here::here("data/pac-all.csv"))
+```
 *If you haven't yet done so, now is definitely a good time to commit and push your changes to GitHub with an appropriate commit message (e.g. "Data scraping complete"). Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
 <div>
