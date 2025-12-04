@@ -251,6 +251,29 @@ pac_all %>% head(10)
     -   Filter for only `Canada` and `Mexico`.
     -   Calculate sum of total contributions from PACs for each year for each country by using a sequence of `group_by()` then `summarise()`.
     -   Make a plot of total contributions (y-axis) by year (x-axis) where two lines identified by different colours represent each of Canada and Mexico.
+```{line plot}
+# Filter for Canada and Mexico only
+pac_can_mex <- pac_all %>%
+  filter(country %in% c("Canada", "Mexico"))
+
+# Calculate sum of total contributions by year and country
+pac_summary <- pac_can_mex %>%
+  group_by(country, year) %>%
+  summarise(total_contributions = sum(total, na.rm = TRUE))
+
+# Create the line plot
+ggplot(pac_summary, aes(x = year, y = total_contributions, color = country)) +
+  geom_line(size = 1) +
+  labs(
+    x = "Year",
+    y = "Total Contributions ($)",
+    color = "Country",
+    title = "Total contributions from foreign-connected PACs in Canada and Mexico",
+    subtitle = "Over the years"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::dollar_format())
+```
 
 ```{marginfigure}
 **Note:** The figure you create might look slightly different than this one if the data on the website has been updated recently.
