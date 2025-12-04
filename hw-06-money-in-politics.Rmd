@@ -223,7 +223,23 @@ The following exercises walk you through how to make these fixes to the data.
 
     -   Some contribution amounts are in the millions (e.g. Anheuser-Busch contributed a total of \$1,510,897 in 2008).
         In this case we need to remove all occurrences of `,`, which we can do by using `str_remove_all()` instead of `str_remove()`.
+```{pac cleaning}
+pac_all <- pac_all %>%
+  separate(country_parent, 
+           into = c("country", "parent"),
+           sep = "/",
+           extra = "merge")
 
+pac_all <- pac_all %>%
+  mutate(
+    total = parse_number(total),
+    dems = parse_number(dems),
+    repubs = parse_number(repubs)
+  )
+
+# Print top 10 rows to check
+pac_all %>% head(10)
+```
 *Now is a good time to knit your document, commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
 ## Data visualization and interpretation
